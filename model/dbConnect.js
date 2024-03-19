@@ -27,13 +27,13 @@ const sequelize = new Sequelize(
               db.Sequelize = Sequelize;
               db.sequelize = sequelize;
 
-              
-              
-
 db.sequelize.sync ({force:false})
 .then(()=>{
  console.log('re-sync done');
  })
- db.customer = require( "./customerModel.js")(sequelize, DataTypes);
+ db.customers = require( "./customerModel.js")(sequelize, DataTypes);
+ db.students = require( "./studentModel.js")(sequelize, DataTypes);
+ db.courses = require("./courseModel.js")(sequelize,DataTypes);
+ db.registration=require("./registrationModel.js")(sequelize,DataTypes)
 
   module.exports = db;
