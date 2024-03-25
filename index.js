@@ -1,44 +1,51 @@
 const express =require ('express');
 const app = express();
-const customerRoute =require("./routes/customerRoutes");
-const courseRoutes =require( './routes/courseRoutes');
-const studentRoutes =require( "./routes/studentRoutes");
-const registrationRoutes=require( './routes/registrationRoutes')
+const studentRoutes =require("./routes/studentRoutes");
+const courseRoutes =require('./Routes/courseRoutes');
+const registrationRoutes = require('./routes/registrationRoutes');
+
 require( 'dotenv').config();
 require("./model/dbConnect");
 
 app.use(express.json());
 app.use(express.urlencoded( { extended: true })); // middleware
 
+app.use('/api/course', courseRoutes)
+app.use('/api/courses',courseRoutes)
+app.use('/api/student', studentRoutes)
+app.use('/api/students', studentRoutes)
+app.use('/api/user', registrationRoutes)
+app.use('/api/users', registrationRoutes)
 
 
-app.use('/api/customer',customerRoute);
-app.use('/api/student',studentRoutes);
-app.use('/api/course',courseRoutes);
-app.use('/api/registration',registrationRoutes);
+// handling 404 error
+app.use(async(req, res, next)=>{
+    next(createError.NotFound())
+})
+
+// Error handling middleware
+app.use((err, req, res, next)=>{
+    if (err.status === 401){
+        // handle 401 Unauthorized error
+        res.status(401).send({
+            error:{
+                status: 401,
+                message: "Unauthorized: Invalid username or password"
+            }
+        });
+    }else {
+        // Handle other errors
+        res.status(err.status || 500).send({
+            error:{
+                status: err.status || 500,
+                message: err.message || "Internal Server Error"
+            }
+        })
+    }
+},
+)
+
+
 app.listen(process.env.port || 4000 , function (){
-    console.log('Now listening for requests on:https://localhost:4000');
+    console.log('Now listening for requests on:http://localhost:4000');
 });
-// app.use((err, req, res, next) => {
-//     if (err.status === 401) {
-//         res.status(401).send({
-//             error: {
-//                 status: 401,
-//                 message: 'Unauthorized invalid username/password'
-//             }
-//         })
-//     } else {
-//         res.status(err.status || 500).send({
-//             error: {
-//                 status: err.status || 500,
-//                 message: err.message || 'Internal Server Error'
-//             }
-//         });
-//     }
-// });
-
-// not found middleware.
-// app.use(async(req, res, next)=> {
-//     next(createHttpError.NotFound())
-// })
-

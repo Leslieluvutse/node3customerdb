@@ -1,21 +1,30 @@
-module.exports = (sequelize, DataTypes) => {
-              const Registration = sequelize.define('registrations', {
-                  registration_id: {
-                      type: DataTypes.INTEGER,
-                      primaryKey: true,
-                      autoIncrement: true,
-                  },
-                  username: {
-                      type: DataTypes.STRING,
-                      allowNull: false,
-                  },
-                  password: {
-                      type: DataTypes.STRING,
-                      allowNull: false,
-                      
-                  }
-              })
-          
-          
-              return Registration
-          }
+const bcrypt = require('bcrypt');
+module.exports=(sequelize, DataTypes) =>{
+    const user = sequelize.define('users', {
+
+        email:{
+            type: DataTypes.STRING,
+            allowNull: false,
+        },  
+        password:{
+            type: DataTypes.STRING,
+            allowNull: false,
+        },        
+    });
+
+    // Before creating a new user, hash the password
+  user.beforeCreate(async (user) => {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    user.password = hashedPassword;
+  });
+  
+  //   Compare the incoming password with the stored password
+    user.prototype.isValidPassword = async function (password) {
+        try {
+            return  await bcrypt.compare(password, this.password);
+        } catch (error) {
+            throw  error;
+        }
+      };
+    return user;
+}
